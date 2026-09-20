@@ -1,41 +1,39 @@
-# ZMK Trackball Control Module (`zmk-trackball-control`)
+# ZMK 汎用高機能トラックボール制御モジュール (`zmk-trackball-control`)
 
-A generic, sensor-agnostic advanced trackball control module for **ZMK Firmware**.  
-Compatible with **PMW3610** (torabo-tsuki, Lotom, Keyball, Cocot), **PAW3204** (Bit Trade One ADTB7M, Kugel-1), and any other pointing device.
-
----
-
-## Features
-
-- 🎯 **Fractional Accumulator (Sub-Pixel Precision)**:
-  - Eliminates quantization truncation noise and forced 1-count jumps.
-  - Carries fractional remainders across polling cycles for ultra-smooth, linear response even at micro-speeds (0.60x) and sniper mode.
-  - Automatic direction reversal detection to clear residual overshoot.
-- ⚡ **Continuous Quadratic Acceleration**:
-  - 5 configurable acceleration profiles (Gentle to Ultra).
-  - Micro-speed precision (0.6x at 1 count, 0.8x at 2 counts) combined with smooth high-speed boost.
-- 📐 **Dynamic Rotation Angle Adjustment (10-degree steps)**:
-  - Compensates for natural hand tilt when reaching for center/thumb trackballs.
-  - Runtime adjustable via keymap (`TB_ROT_CW`, `TB_ROT_CCW`, `TB_ROT_RES`).
-- 🌊 **Soft Smoothing (EMA Filter)**:
-  - Exponential Moving Average filter to eliminate physical ball micro-jitter at low speeds.
-  - Toggleable on the fly via keymap (`TB_SMOOTH_TOG`) with zero latency bypass at high speeds.
-- 📜 **Momentary Scroll with Axis Lock**:
-  - Smooth vertical/horizontal wheel generation.
-  - Directional axis lock prevents accidental horizontal drift during vertical scrolling.
-  - 6-level scroll sensitivity adjustment.
-- 🐭 **Auto-Mouse Layer**:
-  - Automatically activates the mouse layer upon physical motion.
-  - Configurable timeout (200ms - 3000ms).
-  - Instant dismissal when normal typing keys are pressed.
-- 💾 **NVS Settings Persistence**:
-  - Speed level, scroll level, rotation angle, acceleration, and smoothing settings are saved to flash and persist across reboots.
+ZMK Firmware 向けの**センサー非依存・高機能トラックボール制御モジュール**です。  
+自作キーボード界隈で広く使われている **PMW3610**（torabo-tsuki、Lotom、Keyball、Cocot 等）や **PAW3204**（Bit Trade One ADTB7M、Kugel-1）など、あらゆるポインティングデバイスで「極上の操作感」を実現します。
 
 ---
 
-## Installation via `west.yml`
+## 🌟 主な機能と特徴
 
-Add this module to your keyboard repository's `config/west.yml`:
+- 🎯 **端数累積バッファ（サブピクセル演算・極低速リニア追従）**:
+  - 整数除算による切り捨てノイズや、強制的な1カウント跳ね上がりを解消。
+  - 小数の余りを次回サンプリングへキャリーオーバーすることで、極低速域（0.60x等）やスナイパーモードでも1ドット単位で滑らか〜にリニア追従します。
+  - 切り返し時（方向転換時）の残存端数を自動クリアし、余分なオーバーシュートを防ぎます。
+- ⚡ **連続2次関数スムーズ加速カーブ**:
+  - 5段階の加速度プロファイル（Gentle 〜 Ultra）。
+  - 低速域での微小精密操作（1カウントで0.6x、2カウントで0.8x）と、高速域での広い画面移動をシームレスに両立します。
+- 📐 **動的回転角度補正（10度刻み調整・NVS自動保存）**:
+  - キーボード中央や親指位置のトラックボールに手を斜めに伸ばした際の自然な手の向きに合わせて、上下左右の軸を10度刻みで傾き補正可能。
+  - キー操作（`TB_ROT_CW`, `TB_ROT_CCW`, `TB_ROT_RES`）でいつでも調整でき、設定値はマイコン内蔵 Flash (NVS) に自動永続化されます。
+- 🌊 **ソフトスムージング（EMAフィルタ）**:
+  - ボール表面の微小な物理的ひっかかりやマイクロジッターをうっすら抑える指数移動平均フィルタを実装。
+  - キー操作（`TB_SMOOTH_TOG`）でいつでも **ON（しっとり重厚感）⇄ OFF（キレとダイレクト感）** をトグル切り替え可能。高速移動時は自動的にバイパスされ遅延ゼロを維持します。
+- 📜 **軸ロック付きモーメンタリ・スクロール**:
+  - スムーズな垂直・水平スクロールホイール生成。
+  - 縦スクロール中の不意な横ブレを防ぐ方向性軸ロックを内蔵。6段階の感度調整に対応。
+- 🐭 **タイピング即解除付きオートマウスレイヤー**:
+  - ボールを回すと自動的にマウスレイヤーへ遷移。
+  - タイムアウト時間（200ms〜3000ms）の動的調整に対応。通常の文字キーを打鍵した瞬間にディレイゼロで即座に解除されます。
+- 💾 **設定のNVS自動永続化**:
+  - ポインター速度、スクロール感度、回転角度、加速度、スムージングの設定値は内蔵フラッシュに自動保存され、電源を切っても維持されます。
+
+---
+
+## 📦 導入方法 (`west.yml`)
+
+お使いのキーボードリポジトリの `config/west.yml` に本モジュールを追加します：
 
 ```yaml
 manifest:
@@ -48,7 +46,7 @@ manifest:
     - name: zmk
       remote: zmkfirmware
       ...
-    # Add this project:
+    # 本モジュールを追加:
     - name: zmk-trackball-control
       remote: ld50themetaler
       revision: main
@@ -56,33 +54,33 @@ manifest:
 
 ---
 
-## Configuration (`<keyboard>.conf`)
+## ⚙️ Kconfig 設定 (`<keyboard>.conf`)
 
 ```ini
-# Enable Trackball Control Subsystem
+# トラックボール制御サブシステムの有効化
 CONFIG_TRACKBALL_CONTROL=y
 
-# Optional: Customize Mouse Layer ID for your keymap (Default: 4)
+# マウスレイヤー番号（お使いの keymap に合わせて変更可能、デフォルト: 4）
 CONFIG_TRACKBALL_MOUSE_LAYER_ID=4
 
-# Optional: Customize Snipe Layer ID (Default: 5)
+# スナイパーレイヤー番号（デフォルト: 5）
 CONFIG_TRACKBALL_SNIPE_LAYER_ID=5
 
-# Optional: Default pointer speed (1 to 16, 8 = 1.00x default)
+# ポインター初期速度（1〜16段階、デフォルト: 8 = 1.00x）
 CONFIG_TRACKBALL_DEFAULT_SPEED_LEVEL=8
 
-# Optional: Default scroll sensitivity (1 to 6, 3 = normal default)
+# スクロール初期感度（1〜6段階、デフォルト: 3）
 CONFIG_TRACKBALL_DEFAULT_SCROLL_LEVEL=3
 
-# Optional: Default rotation angle in degrees (Default: 0)
+# 回転角度の初期値（度数法、デフォルト: 0）
 CONFIG_TRACKBALL_DEFAULT_ROTATION_ANGLE=0
 ```
 
 ---
 
-## Keymap Usage
+## ⌨️ キーマップ定義 (`<keyboard>.keymap`)
 
-Include the header in your `.keymap` file:
+キーマップファイルでヘッダーをインクルードし、ビヘイビアを定義します：
 
 ```dts
 #include <dt-bindings/zmk/trackball.h>
@@ -97,42 +95,47 @@ Include the header in your `.keymap` file:
 };
 ```
 
-### Available Behaviors:
+### 利用可能な操作コマンド:
 
-| Keycode | Description |
+| キーコード | 説明 |
 | :--- | :--- |
-| `&tb TB_SPD_UP` / `&tb TB_SPD_DN` | Pointer speed up / down (16 levels) |
-| `&tb TB_SCRL_UP` / `&tb TB_SCRL_DN` | Scroll sensitivity up / down (6 levels) |
-| `&tb TB_SCRL_TOG` / `&tb TB_SCRL_MO` | Momentary scroll mode (hold for scroll) |
-| `&tb TB_ACCEL_TOG` | Toggle acceleration ON / OFF |
-| `&tb TB_ACCEL_UP` / `&tb TB_ACCEL_DN` | Change acceleration profile (1-5) |
-| `&tb TB_SMOOTH_TOG` | Toggle soft smoothing (EMA filter) ON / OFF |
-| `&tb TB_ROT_CW` / `&tb TB_ROT_CCW` | Rotate angle by +10° / -10° |
-| `&tb TB_ROT_RES` | Reset rotation angle to 0° |
-| `&tb TB_AM_TOG` | Toggle Auto-Mouse layer ON / OFF |
-| `&tb TB_AM_TIME_UP` / `DN` / `RES` | Auto-Mouse timeout adjust (+100ms / -100ms / reset) |
+| `&tb TB_SPD_UP` / `&tb TB_SPD_DN` | ポインター速度 アップ / ダウン（16段階） |
+| `&tb TB_SCRL_UP` / `&tb TB_SCRL_DN` | スクロール感度 アップ / ダウン（6段階） |
+| `&tb TB_SCRL_TOG` / `&tb TB_SCRL_MO` | モーメンタリ・スクロールモード（押している間スクロール） |
+| `&tb TB_ACCEL_TOG` | 2次関数加速カーブの ON / OFF トグル |
+| `&tb TB_ACCEL_UP` / `&tb TB_ACCEL_DN` | 加速度プロファイル変更（1〜5段階） |
+| `&tb TB_SMOOTH_TOG` | ソフトスムージング（EMAフィルタ）の ON / OFF トグル |
+| `&tb TB_ROT_CW` / `&tb TB_ROT_CCW` | 動作角度を時計回り / 反時計回りに +10° / -10° 調整 |
+| `&tb TB_ROT_RES` | 動作角度を 0°（初期値）にリセット |
+| `&tb TB_AM_TOG` | オートマウスレイヤー機能の 有効 / 無効 トグル |
+| `&tb TB_AM_TIME_UP` / `DN` / `RES` | オートマウス持続時間調整（+100ms / -100ms / 800msリセット） |
 
 ---
 
-## Driver Integration Example (e.g. PMW3610 / PAW3204)
+## 🔌 センサードライバへの組み込み例 (PMW3610 / PAW3204)
 
-In your sensor driver:
+センサーから生の移動カウント $(dx, dy)$ を取得した箇所で、本モジュールの API を呼び出すだけで簡単に極上制御を適用できます：
 
 ```c
 #include <trackball_control.h>
 
 void on_sensor_data(int raw_dx, int raw_dy) {
+    // 1. オートマウス起動フック
     trackball_control_on_motion(raw_dx, raw_dy);
 
+    // 2. 角度補正計算
     int rot_dx = 0, rot_dy = 0;
     trackball_control_rotate_motion(raw_dx, raw_dy, &rot_dx, &rot_dy);
 
+    // 3. スクロールモード判定
     if (trackball_control_is_scroll_mode()) {
-        // Handle scroll accumulation with trackball_control_get_scroll_div()
+        // スクロール除数テーブルを使用してホイールイベントを報告
     } else {
+        // 4. スムージング、2次関数加速、端数累積バッファによる高精度計算
         int final_dx = 0, final_dy = 0;
         trackball_control_calculate_motion(rot_dx, rot_dy, &final_dx, &final_dy);
 
+        // 5. HID イベント報告（端数蓄積中の 0 移動は送信スキップ）
         if (final_dx != 0 || final_dy != 0) {
             input_report_rel(dev, INPUT_REL_X, final_dx, false, K_NO_WAIT);
             input_report_rel(dev, INPUT_REL_Y, final_dy, true, K_NO_WAIT);
@@ -143,6 +146,6 @@ void on_sensor_data(int raw_dx, int raw_dy) {
 
 ---
 
-## License
+## 📄 ライセンス
 
-MIT License - see [LICENSE](LICENSE) file.
+MIT License - 詳細は [LICENSE](LICENSE) ファイルをご確認ください。
