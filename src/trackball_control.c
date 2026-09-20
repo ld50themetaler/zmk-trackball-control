@@ -18,9 +18,11 @@
 
 #include "trackball_control.h"
 
-#if IS_ENABLED(CONFIG_KUGEL_INDICATOR)
-#include "kugel_indicator.h"
-#endif
+/* Weak callback for smoothing toggle (implemented by board indicator if desired) */
+__attribute__((weak)) void trackball_control_on_smoothing_toggled(bool enabled)
+{
+    ARG_UNUSED(enabled);
+}
 
 LOG_MODULE_REGISTER(trackball_control, LOG_LEVEL_INF);
 
@@ -666,9 +668,7 @@ void trackball_control_toggle_smoothing(void)
     s_motion_x_accum = 0;
     s_motion_y_accum = 0;
     LOG_INF("Trackball smoothing toggled -> %s", g_tb.smoothing_enabled ? "ON" : "OFF");
-#if IS_ENABLED(CONFIG_KUGEL_INDICATOR)
-    kugel_indicator_show_smoothing(g_tb.smoothing_enabled);
-#endif
+    trackball_control_on_smoothing_toggled(g_tb.smoothing_enabled);
     schedule_settings_save();
 }
 

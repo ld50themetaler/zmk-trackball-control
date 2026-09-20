@@ -73,6 +73,8 @@ uint8_t trackball_control_get_accel_level(void);
 // Soft Smoothing (EMA Filter)
 void trackball_control_toggle_smoothing(void);
 bool trackball_control_is_smoothing_enabled(void);
+/* Weak callback invoked when smoothing state changes (override in board code if desired) */
+void trackball_control_on_smoothing_toggled(bool enabled);
 
 // Rotation Angle Control (-180 to +180 deg in 10-deg steps)
 void trackball_control_rotate_cw(void);

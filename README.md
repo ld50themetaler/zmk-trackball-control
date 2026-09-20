@@ -146,6 +146,26 @@ void on_sensor_data(int raw_dx, int raw_dy) {
 
 ---
 
+## 💡 ボード固有のLED・インジケーターとの連携
+
+本モジュールはハードウェア非依存（特定のLEDピンやドライバに依存しない）設計になっています。
+スムージングのON/OFF切り替え時にLEDを点滅させたい場合などは、キーボード側のコードで以下のコールバック関数を実装するだけで自動的にフックされます（未定義時は何もしない Weak Symbol となっています）：
+
+```c
+#include <trackball_control.h>
+
+// スムージング切り替え時に自動的に呼び出されるコールバック
+void trackball_control_on_smoothing_toggled(bool enabled) {
+    if (enabled) {
+        // 例: ON の場合は2回点滅、あるいはLED点灯
+    } else {
+        // 例: OFF の場合は1回点滅、あるいはLED消灯
+    }
+}
+```
+
+---
+
 ## 📄 ライセンス
 
 MIT License - 詳細は [LICENSE](LICENSE) ファイルをご確認ください。
