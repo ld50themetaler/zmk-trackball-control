@@ -1,0 +1,40 @@
+# Copyright (c) 2024-2026 The ZMK Contributors
+# SPDX-License-Identifier: MIT
+
+menuconfig TRACKBALL_CONTROL
+	bool "Advanced Trackball Control Subsystem"
+	default y
+	help
+	  Enable generic advanced trackball control subsystem featuring fractional
+	  accumulation, quadratic acceleration, rotation angle, auto-mouse, and smoothing.
+
+if TRACKBALL_CONTROL
+
+config TRACKBALL_MOUSE_LAYER_ID
+	int "Mouse Layer ID for Auto-Mouse"
+	default 4
+	help
+	  The layer index automatically activated on trackball motion.
+
+config TRACKBALL_SNIPE_LAYER_ID
+	int "Snipe Layer ID for Sniper Mode"
+	default 5
+	help
+	  The layer index that activates sniper mode.
+
+config TRACKBALL_DEFAULT_SPEED_LEVEL
+	int "Default speed level (1 to 16, 8 = 1.00x)"
+	default 8
+	range 1 16
+
+config TRACKBALL_DEFAULT_SCROLL_LEVEL
+	int "Default scroll sensitivity level (1 to 6)"
+	default 3
+	range 1 6
+
+config TRACKBALL_DEFAULT_ROTATION_ANGLE
+	int "Default rotation angle (-180 to 180 in 10-deg steps)"
+	default 0
+	range -180 180
+
+endif # TRACKBALL_CONTROL
